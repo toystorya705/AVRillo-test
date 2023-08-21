@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Web Page</title>
+  </head>
+  <body>
+    <h1>Submit Your Message</h1>
+    <form id="message-form">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required /><br />
+
+      <label for="message">Message:</label>
+      <textarea id="message" name="message" rows="4" required></textarea><br />
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <div id="confirmation" style="display: none">
+      <h2>Submission Confirmation</h2>
+      <p>Name: <span id="confirm-name"></span></p>
+      <p>Message: <span id="confirm-message"></span></p>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("message-form");
+        const confirmationDiv = document.getElementById("confirmation");
+        const confirmName = document.getElementById("confirm-name");
+        const confirmMessage = document.getElementById("confirm-message");
+
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const name = form.name.value;
+          const message = form.message.value;
+
+          if (name.trim() === "" || message.trim() === "") {
+            alert("Name and message are required fields.");
+            return;
+          }
+
+          try {
+            const response = await fetch("/submit", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name, message }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              confirmName.textContent = data.name;
+              confirmMessage.textContent = data.message;
+              confirmationDiv.style.display = "block";
+              form.reset();
+            } else {
+              alert("Error submitting the form.");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
